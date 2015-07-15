@@ -14,12 +14,8 @@ window.onload = function init()
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
-    //
     //  Initialize our data for the Sierpinski Gasket
-    //
-
     // First, initialize the corners of our gasket with three points.
-
     var vertices = [
         vec2( -0.5, -0.5 ),
         vec2(  0,  0.5 ),
@@ -28,8 +24,6 @@ window.onload = function init()
 
     divideTriangle( vertices[0], vertices[1], vertices[2],
                     NumTimesToSubdivide);
-
-	rotateTriangles(0);
 
     //  Configure WebGL
     gl.viewport( 0, 0, canvas.width, canvas.height );
@@ -40,13 +34,11 @@ window.onload = function init()
     gl.useProgram( program );
 
     // Load the data into the GPU
-
     var bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
 
     // Associate our shader variables with our data buffer
-
     var vPosition = gl.getAttribLocation( program, "vPosition" );
     gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
@@ -54,6 +46,7 @@ window.onload = function init()
     render();
 };
 
+// Rotates the triangle the given amount of degrees
 function rotateTriangles(degrees) {
 	debugger;
 
@@ -76,14 +69,11 @@ function triangle( a, b, c ) {
 
 function divideTriangle( a, b, c, count ) {
     // check for end of recursion
-
     if ( count === 0 ) {
         triangle( a, b, c );
     }
     else {
-
         //bisect the sides
-
         var ab = mix( a, b, 0.5 );
         var ac = mix( a, c, 0.5 );
         var bc = mix( b, c, 0.5 );
@@ -91,7 +81,6 @@ function divideTriangle( a, b, c, count ) {
         --count;
 
         // four new triangles
-
         divideTriangle( a, ab, ac, count );
         divideTriangle( c, ac, bc, count );
         divideTriangle( b, bc, ab, count );
