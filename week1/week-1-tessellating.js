@@ -4,6 +4,7 @@ var canvas;
 var gl;
 
 var points = [];
+var transformedPoints = [];
 
 var NumTimesToSubdivide = 5;
 
@@ -22,9 +23,14 @@ window.onload = function init()
         vec2(  0.5, -0.5 )
     ];
 
-    divideTriangle( vertices[0], vertices[1], vertices[2],
-                    NumTimesToSubdivide);
+    divideTriangle(vertices[0], vertices[1], vertices[2], NumTimesToSubdivide);
 
+	prepareData();
+
+    render();
+};
+
+function prepareData() {
     //  Configure WebGL
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
@@ -36,20 +42,16 @@ window.onload = function init()
     // Load the data into the GPU
     var bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(transformedPoints), gl.STATIC_DRAW );
 
     // Associate our shader variables with our data buffer
     var vPosition = gl.getAttribLocation( program, "vPosition" );
     gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
-
-    render();
-};
+}
 
 // Rotates the triangle the given amount of degrees
 function rotateTriangles(degrees) {
-	debugger;
-
 	for (var i = 0; i < points.length; i++) {
 		var v = points[i];
 		var x = v[0], y = v[1];
@@ -59,12 +61,13 @@ function rotateTriangles(degrees) {
 
 		var newX = x * Math.cos(amount) - y * Math.sin(amount);
 		var newY = x * Math.sin(amount) + y * Math.cos(amount);
-		points[i] = vec2(newX, newY);
+		transformedPoints[i] = vec2(newX, newY);
 	}
 }
 
 function triangle( a, b, c ) {
     points.push( a, b, c );
+    transformedPoints.push( a, b, c );
 }
 
 function divideTriangle( a, b, c, count ) {
@@ -88,8 +91,7 @@ function divideTriangle( a, b, c, count ) {
     }
 }
 
-function render()
-{
+function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
     gl.drawArrays( gl.TRIANGLES, 0, points.length );
 }
@@ -98,19 +100,7 @@ function changeDegrees(percentage) {
 	var degrees = Math.PI / 2 * percentage / 100;
 	rotateTriangles(degrees);
 
-    //  Load shaders and initialize attribute buffers
-    var program = initShaders( gl, "vertex-shader", "fragment-shader" );
-    gl.useProgram( program );
-
-    // Load the data into the GPU
-    var bufferId = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
-
-    // Associate our shader variables with our data buffer
-    var vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );
+	prepareData();
 
     render();
 }
